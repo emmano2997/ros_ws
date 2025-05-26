@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Roda do robô -->
+  <xacro:macro name="wheel" params="name parent xyz rpy">
+    <link name="${name}">
+      <visual>
+        <geometry>
+          <sphere radius="0.3"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+
+      <collision>
+        <geometry>
+          <sphere radius="0.3"/>
+        </geometry>
+      </collision>
+
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="10"/>
+        <inertia
+          ixx="${(2/5) * 10.0 * (0.3*0.3)}"
+          iyy="${(2/5) * 10.0 * (0.3*0.3)}"
+          izz="${(2/5) * 10.0 * (0.3*0.3)}"
+          ixy="0.0" ixz="0.0" iyz="0.0"/>
+      </inertial>
+    </link>
+
+    <joint name="joint_${name}" type="continuous">
+      <parent link="${parent}"/>
+      <child link="${name}"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+      <axis xyz="1 0 0"/>
+      <limit effort="5.0" velocity="10.0"/>
+      <dynamics damping="0.1" friction="0.1"/>
+
+    <joint name="joint_${name}" type="continuous">
+      <gazebo reference="${name}">
+        <mu1>1.0</mu1>
+        <mu2>1.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>1.0</kd>
+        <minDepth>0.001</minDepth>
+      </gazebo>
+    </joint>
+
+  <!-- Add transmission for ROS control -->
+    <transmission name="trans_${name}">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="joint_${name}">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="motor_${name}">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    </joint>
+  </xacro:macro>
+
+</robot>
